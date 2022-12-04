@@ -1,9 +1,12 @@
+import Data.Char
+
 answer :: Int -> IO ()
 answer question = do
   input <- readFile "Day2Input.txt"
-  let scoresPerMove = map scoreOfMove $ parseInput input
+  let parsedInput = parseInput input
   case question of
-    1 -> print $ sum scoresPerMove
+    1 -> print $ sum $ map scoreOfMove parsedInput
+    2 -> print $ sum $ map (scoreOfMove . determineMove) parsedInput
 
 parseInput :: String -> [(Char, Char)]
 parseInput = map (\line -> (line !! 0, line !! 2)) . lines
@@ -25,6 +28,11 @@ scoreOfMove (other, you) = (scoreOfWinning other you) + (scoreOfShape you)
     scoreOfWinning _   _   = error "Illegal move operator"
 
     scoreOfShape :: Char -> Int
-    scoreOfShape 'X' = 1
-    scoreOfShape 'Y' = 2
-    scoreOfShape 'Z' = 3
+    scoreOfShape c = ord c - ord 'W'
+
+determineMove :: (Char, Char) -- Other, required outcome
+              -> (Char, Char) -- Other, your move
+determineMove (other, outcome) =
+  let otherOffset = ord other - ord 'A'
+      outcomeOffset = ord outcome - ord 'X'
+   in (other, ['Z', 'X', 'Y'] !! ((otherOffset + outcomeOffset) `rem` 3))
