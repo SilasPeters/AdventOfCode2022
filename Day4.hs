@@ -6,7 +6,7 @@ data Range = Range { lowerIncl :: Int, upperIncl :: Int } deriving (Show)
 
 answer :: Int -> IO ()
 answer question = do
-  inputRaw <- readFile "Day4Input.txt"
+  inputRaw <- readFile "Day4.input"
   let parsedInput = map parseRange $ lines inputRaw
   case question of
     1 -> print $ length $ mapMaybe strictlyOverlap parsedInput

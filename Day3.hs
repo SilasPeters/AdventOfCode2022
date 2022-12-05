@@ -3,7 +3,7 @@ import Data.Char
 
 answer :: Int -> IO ()
 answer question = do
-  inputRaw <- readFile "Day3Input.txt"
+  inputRaw <- readFile "Day3.input"
   let parsedInput = lines inputRaw
   let duplicatesPerRucksack = map findDuplicateInRucksack parsedInput
   case question of

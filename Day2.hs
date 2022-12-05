@@ -2,7 +2,7 @@ import Data.Char
 
 answer :: Int -> IO ()
 answer question = do
-  input <- readFile "Day2Input.txt"
+  input <- readFile "Day2.input"
   let parsedInput = parseInput input
   case question of
     1 -> print $ sum $ map scoreOfMove parsedInput

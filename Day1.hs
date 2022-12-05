@@ -2,7 +2,7 @@ import Data.List
 
 answer :: Int -> IO ()
 answer question = do
-  inputRaw <- readFile "Day1Input.txt"
+  inputRaw <- readFile "Day1.input"
   let groupedInput = groupPerElf $ lines inputRaw
   let parsedInput = map (map read) groupedInput :: [[Int]]
   let totalPerElf = map sum parsedInput
