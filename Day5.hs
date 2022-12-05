@@ -27,10 +27,10 @@ answer question = do
   inputRaw <- lines <$> readFile "Day5.input"
   let stacks = parseStacks $ take 8  inputRaw
   let deltas = parseDeltas $ drop 10 inputRaw
-  let result = \popMethod -> performMoves popMethod stacks deltas
+  let rearrange = \popMethod -> performMoves popMethod stacks deltas
   case question of
-    1 -> print $ concatMap (fst . popNFromStack 1) $ result popNFromStack
-    2 -> print $ concatMap (fst . popNFromStack 1) $ result popNFromStackAsAWhole 
+    1 -> print $ concatMap (fst . popNFromStack 1) $ rearrange popNFromStack
+    2 -> print $ concatMap (fst . popNFromStack 1) $ rearrange popNFromStackAsAWhole 
 
 parseStacks :: [String] -> [Stack Char] -- Yes, this is wonky. No, I won't comment it
 parseStacks = map ((Stack . filter (not . isSpace)) . reverse) . every 4 . (["",""] ++) . transpose
