@@ -17,14 +17,20 @@ popNFromStack :: Int -> Stack a -> ([a], Stack a)
 popNFromStack n (Stack s) = let s' = reverse s in
   (take n s', Stack $ reverse $ drop n s')
 
+popNFromStackAsAWhole :: Int -> Stack a -> ([a], Stack a)
+popNFromStackAsAWhole n stacks =
+  let (xs, stacks') = popNFromStack n stacks
+   in (reverse xs, stacks')
+
 answer :: Int -> IO ()
 answer question = do
   inputRaw <- lines <$> readFile "Day5.input"
   let stacks = parseStacks $ take 8  inputRaw
   let deltas = parseDeltas $ drop 10 inputRaw
+  let result = \popMethod -> performMoves popMethod stacks deltas
   case question of
-    1 -> print $ concatMap (fst . popNFromStack 1) $ performMoves stacks deltas
-    2 -> print $ "Not implemented yet"
+    1 -> print $ concatMap (fst . popNFromStack 1) $ result popNFromStack
+    2 -> print $ concatMap (fst . popNFromStack 1) $ result popNFromStackAsAWhole 
 
 parseStacks :: [String] -> [Stack Char] -- Yes, this is wonky. No, I won't comment it
 parseStacks = map ((Stack . filter (not . isSpace)) . reverse) . every 4 . (["",""] ++) . transpose
@@ -35,12 +41,12 @@ parseDeltas = map $ makeDelta . every 2 . words
     makeDelta :: [String] -> Delta
     makeDelta [a,b,c] = Delta (read a) (read b - 1) (read c - 1)
 
-performMoves :: [Stack Char] -> [Delta] -> [Stack Char]
-performMoves = foldl f
+performMoves :: (Int -> Stack Char -> ([Char], Stack Char)) -> [Stack Char] -> [Delta] -> [Stack Char]
+performMoves popMethod = foldl f
   where
     f :: [Stack Char] -> Delta -> [Stack Char]
     f stacks (Delta nOfCrates fromStack toStack) =
-      let (crates, shrinkedFromStack) = popNFromStack nOfCrates (stacks !! fromStack)
+      let (crates, shrinkedFromStack) = popMethod nOfCrates (stacks !! fromStack)
           stacks'         = replaceAt fromStack stacks shrinkedFromStack
           expandedToStack = putStack (stacks' !! toStack) crates
           stacks''        = replaceAt toStack stacks' expandedToStack
