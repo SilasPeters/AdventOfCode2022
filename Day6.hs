@@ -3,16 +3,17 @@ answer :: Int -> IO ()
 answer question = do
   input <- readFile "Day6.input"
   case question of
-    1 -> print $ startOfFile input
-    2 -> print $ "Not implemented yet"
+    1 -> print $ findUniqueSubsetOfLength 4 input
+    2 -> print $ findUniqueSubsetOfLength 14 input
 
-startOfFile :: String -> Int
-startOfFile = search 0
+findUniqueSubsetOfLength :: Eq a => Int -> [a] -> Int
+findUniqueSubsetOfLength length stream = search stream 0
   where
-    search :: Int -> String -> Int
-    search count stream | not $ duplicate $ take 4 stream = count + 4
-                        | otherwise                       = search (count + 1) (drop 1 stream)
-    duplicate :: String -> Bool
+    search :: Eq a => [a] -> Int -> Int
+    search stream count
+      | not $ duplicate $ take length stream = count + length
+      | otherwise                            = search (drop 1 stream) (count + 1)
+    duplicate :: Eq a => [a] -> Bool
     duplicate []     = False
     duplicate (x:xs) | x `elem` xs = True
                      | otherwise   = duplicate xs
