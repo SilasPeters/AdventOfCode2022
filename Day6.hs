@@ -1,13 +1,14 @@
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
 answer :: Int -> IO ()
 answer question = do
   input <- readFile "Day6.input"
   case question of
-    1 -> print $ findUniqueSubsetOfLength 4 input
-    2 -> print $ findUniqueSubsetOfLength 14 input
+    1 -> print $ findDistinctGroupOfLength 4 input
+    2 -> print $ findDistinctGroupOfLength 14 input
 
-findUniqueSubsetOfLength :: Eq a => Int -> [a] -> Int
-findUniqueSubsetOfLength length stream = search stream 0
+findDistinctGroupOfLength :: Eq a => Int -> [a] -> Int
+findDistinctGroupOfLength length stream = search stream 0
   where
     search :: Eq a => [a] -> Int -> Int
     search stream count
