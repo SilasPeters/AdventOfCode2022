@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
 import Data.List ( elemIndex )
 import Data.Maybe ( fromJust, mapMaybe )

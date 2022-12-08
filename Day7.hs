@@ -54,8 +54,8 @@ cd path name = do
 mkFile :: Path -> String -> String -> IO ()
 mkFile path name = writeFile (path `expandedWith` name)
 
-sumSizeOfFilesWithSizeOfAtMost :: Int -> IORef Int -> Path -> IO Int
-sumSizeOfFilesWithSizeOfAtMost maxSize = getSize
+mapOverFolderSizes :: Int -> IORef Int -> Path -> (Int -> IO ()) -> IO Int
+sumSizeOfFilesWithSizeOfAtMost maxSize f = getSize
   where
     getSize :: IORef Int -> Path -> IO Int
     getSize acc path = do
@@ -66,8 +66,11 @@ sumSizeOfFilesWithSizeOfAtMost maxSize = getSize
           size <- sum <$> mapM (getSize acc . expandedWith path) directoryContents
           if size <= maxSize
             then do
-              oldAcc <- readIORef acc
-              writeIORef acc (oldAcc + size)
+              f size
               return size
             else return size
         else read <$> readFile path
+
+
+-- oldAcc <- readIORef acc
+-- writeIORef acc (oldAcc + size)
