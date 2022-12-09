@@ -18,10 +18,26 @@ answer question = do
   executeCommands input
   case question of
     1 -> do
-      acc <- newIORef 0
-      sumSizeOfFilesWithSizeOfAtMost 100000 acc root
-      print =<< readIORef acc
-    2 -> print $ "Question not published yet"
+      accRef <- newIORef 0
+      mapOverFolderSizesWhenSizeAtMost 100000 (\x -> modifyIORef accRef (+ x)) root
+      print =<< readIORef accRef
+    2 -> do
+      -- Determine total disk space used
+      totalSizeRef <- newIORef 0
+      mapOverFolderSizesWhenSizeAtMost 70000000 (writeIORef totalSizeRef) root
+
+      -- Determine space needed
+      totalSize <- readIORef totalSizeRef -- size of root folder
+      let minimumSize = 30000000 - (70000000 - totalSize)
+      print minimumSize
+
+      -- Find the smallest folder larget than the space needed
+      sizeOfDirectoryToDelete <- newIORef totalSize -- root folder by default
+      mapOverFolderSizesWhenSizeAtMost 70000000
+        (\x -> modifyIORef sizeOfDirectoryToDelete
+          (\current -> if x >= minimumSize then min current x else current)
+        ) root
+      print =<< readIORef sizeOfDirectoryToDelete
 
 executeCommands :: [String] -> IO Path
 executeCommands = foldM executeCommand root
@@ -54,23 +70,17 @@ cd path name = do
 mkFile :: Path -> String -> String -> IO ()
 mkFile path name = writeFile (path `expandedWith` name)
 
-mapOverFolderSizes :: Int -> IORef Int -> Path -> (Int -> IO ()) -> IO Int
-sumSizeOfFilesWithSizeOfAtMost maxSize f = getSize
+mapOverFolderSizesWhenSizeAtMost :: Int -> (Int -> IO ()) -> Path -> IO Int
+mapOverFolderSizesWhenSizeAtMost maxSize f = getSize
   where
-    getSize :: IORef Int -> Path -> IO Int
-    getSize acc path = do
+    getSize :: Path -> IO Int
+    getSize path = do
       isDirectory <- doesDirectoryExist path
       if isDirectory
         then do
           directoryContents <- listDirectory path
-          size <- sum <$> mapM (getSize acc . expandedWith path) directoryContents
+          size <- sum <$> mapM (getSize . expandedWith path) directoryContents
           if size <= maxSize
-            then do
-              f size
-              return size
+            then f size >> return size
             else return size
         else read <$> readFile path
-
-
--- oldAcc <- readIORef acc
--- writeIORef acc (oldAcc + size)
